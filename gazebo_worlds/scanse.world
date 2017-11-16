@@ -27,7 +27,7 @@
             </joint>
 
             <!-- Attach the plugin to this model -->
-            <plugin name="ScanseControlPlugin" filename="libscansectrl.so"/>
+            <plugin name="ScanseControlPlugin" filename="libScanseCtrlPlugin.so"/>
 <!--            <plugin name="ScanseSensorPlugin" filename="libscansesensor.so"/> -->
         </model>
     </world>

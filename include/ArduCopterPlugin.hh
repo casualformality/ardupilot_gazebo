@@ -62,6 +62,9 @@ namespace gazebo
     /// \param[in] _info Update information provided by the server.
     private: void OnUpdate();
 
+    /// \brief Update the Scanse sensor
+    private: void OnSensorUpdate();
+
     /// \brief Update PID Joint controllers.
     /// \param[in] _dt time step size since last update.
     private: void ApplyMotorForces(const double _dt);

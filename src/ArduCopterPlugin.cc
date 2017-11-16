@@ -35,6 +35,11 @@
 
 #define MAX_MOTORS 255
 
+#ifndef M_PI
+#define M_PI 3.1415926536f
+#endif
+#define M_PI_16 0.1963495408
+
 using namespace gazebo;
 
 GZ_REGISTER_MODEL_PLUGIN(ArduCopterPlugin)
@@ -117,6 +122,9 @@ struct fdmPacket
 
   /// \brief Model position in NED frame
   double positionXYZ[3];
+
+  /// \brief Distance values for proximity sensor
+  double distances[8];
 };
 
 /// \brief Rotor class
@@ -160,10 +168,14 @@ class Rotor
   public: double samplingRate;
   public: ignition::math::OnePole<double> velocityFilter;
 
-  public: static constexpr double kDefaultRotorVelocitySlowdownSim = 10.0;
-  public: static constexpr double kDefaultFrequencyCutoff = 5.0;
-  public: static constexpr double kDefaultSamplingRate = 0.2;
+  public: static double kDefaultRotorVelocitySlowdownSim;
+  public: static double kDefaultFrequencyCutoff;
+  public: static double kDefaultSamplingRate;
 };
+
+double Rotor::kDefaultRotorVelocitySlowdownSim = 10.0;
+double Rotor::kDefaultFrequencyCutoff = 5.0;
+double Rotor::kDefaultSamplingRate = 0.2;
 
 // Private data class
 class gazebo::ArduCopterSocketPrivate
@@ -333,6 +345,22 @@ class gazebo::ArduCopterPluginPrivate
   /// \brief number of times ArduCotper skips update
   /// before marking ArduCopter offline
   public: int connectionTimeoutMaxCount;
+  
+  /// \brief Pointer to Scanse LiDAR sensor
+  public: sensors::RaySensorPtr scanseSensor;
+
+  /// \brief Pointer to Scanse LiDAR model
+  public: physics::EntityPtr scannerModel;
+
+  /// \brief Buffer for range values collected from Scanse LiDAR
+  public: double ranges[8];
+
+  /// \brief Determines validity of each LiDAR range value
+  public: bool rangeValid[8];
+
+  /// \brief Last angle received from Scanse Sensor, used
+  /// to reset distance information
+  public: double lastAngle;
 };
 
 /////////////////////////////////////////////////
@@ -536,6 +564,19 @@ void ArduCopterPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
     }
   }
 
+  this->dataPtr->scanseSensor = std::dynamic_pointer_cast<sensors::RaySensor>
+    (sensors::get_sensor("scanse_sensor"));
+  if (!this->dataPtr->scanseSensor) {
+      gzwarn << "Unable to connect to Scanse Sensor.\n";
+  } else {
+      this->dataPtr->scanseSensor->SetActive(true);
+      this->dataPtr->scanseSensor->ConnectUpdated(
+          std::bind(&ArduCopterPlugin::OnSensorUpdate, this));
+      this->dataPtr->scannerModel = 
+          this->dataPtr->model->GetWorld()->EntityByName(
+              this->dataPtr->scanseSensor->ParentName());
+  }
+
   // Controller time control.
   this->dataPtr->lastControllerUpdateTime = 0;
 
@@ -577,6 +618,62 @@ void ArduCopterPlugin::OnUpdate()
   }
 
   this->dataPtr->lastControllerUpdateTime = curTime;
+}
+
+/////////////////////////////////////////////////
+void ArduCopterPlugin::OnSensorUpdate()
+{
+  double angle, range;
+  unsigned int sector, i;
+  ignition::math::Pose3d pose;
+
+  range = this->dataPtr->scanseSensor->Range(0);
+  pose = (this->dataPtr->scannerModel->WorldPose() + 
+      this->dataPtr->scanseSensor->Pose()) - this->dataPtr->model->WorldPose();
+  angle = pose.Rot().Yaw();
+
+  // Switch from +/- pi to 2pi radix
+  if (angle < 0.0f) {
+    angle = angle + 6.2831853072f;
+  }
+
+  // Reset range values on each revolution of LiDAR unit
+  if (angle < this->dataPtr->lastAngle) {
+    for (i=0; i<8; i++) {
+      this->dataPtr->rangeValid[i] = false;
+    }
+  }
+
+  // Determine sector in which angle belongs
+  // Sectors are PI/8 radians wide with the center starting at 0
+  if (angle < (M_PI_16) || angle > (15*M_PI_16)) {
+    sector = 0;
+  } else if (angle < (3*M_PI_16)) {
+    sector = 1;
+  } else if (angle < (5*M_PI_16)) {
+    sector = 2;
+  } else if (angle < (7*M_PI_16)) {
+    sector = 3;
+  } else if (angle < (9*M_PI_16)) {
+    sector = 4;
+  } else if (angle < (11*M_PI_16)) {
+    sector = 5;
+  } else if (angle < (13*M_PI_16)) {
+    sector = 6;
+  } else {
+    sector = 7;
+  }
+
+  // Update sector value
+  if (this->dataPtr->rangeValid[sector]) {
+    this->dataPtr->ranges[sector] = std::min(
+        range, this->dataPtr->ranges[sector]);
+  } else {
+    this->dataPtr->ranges[sector] = range;
+    this->dataPtr->rangeValid[sector] = true;
+  }
+
+  this->dataPtr->lastAngle = angle;
 }
 
 /////////////////////////////////////////////////
@@ -836,6 +933,10 @@ void ArduCopterPlugin::SendState() const
   pkt.velocityXYZ[0] = velNEDFrame.X();
   pkt.velocityXYZ[1] = velNEDFrame.Y();
   pkt.velocityXYZ[2] = velNEDFrame.Z();
+
+  for (unsigned int sector=0; sector<8; sector++) {
+    pkt.distances[sector] = this->dataPtr->ranges[sector];
+  }
 
   this->dataPtr->socket_out.Send(&pkt, sizeof(pkt));
 }

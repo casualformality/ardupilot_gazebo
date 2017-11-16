@@ -1,4 +1,4 @@
-#include "ScanseSensorPlugin.hh"
+#include "../include/ScanseSensorPlugin.hh"
 
 using namespace gazebo;
 GZ_REGISTER_SENSOR_PLUGIN(ScanseSensorPlugin)
@@ -46,11 +46,9 @@ void ScanseSensorPlugin::Load(sensors::SensorPtr _sensor, sdf::ElementPtr /*_sdf
 /////////////////////////////////////////////////
 void ScanseSensorPlugin::OnUpdate()
 {
-    mavlink_distance_sensor_t sensor_msg;
-
     ignition::math::Pose3d pose = 
             this->parentSensor->Pose() + this->parentObject->WorldPose();;
-    sensor_msg.current_distance = this->parentSensor->Range(0);
+    double range = this->parentSensor->Range(0);
     double angle = pose.Rot().Yaw();
     
     if (angle < 0.1 && angle > -0.1) {

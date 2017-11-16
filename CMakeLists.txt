@@ -41,6 +41,8 @@ set (plugins_single_header
         ArduCopterIRLockPlugin
 	ArduCopterPlugin
         GimbalSmall2dPlugin
+    ScanseCtrlPlugin
+    ScanseSensorPlugin
         )
 
 add_library(ArduCopterIRLockPlugin SHARED src/ArduCopterIRLockPlugin.cc)
@@ -52,10 +54,10 @@ target_link_libraries(ArduPilotPlugin ${GAZEBO_LIBRARIES})
 add_library(ArduCopterPlugin SHARED src/ArduCopterPlugin.cc)
 target_link_libraries(ArduCopterPlugin ${GAZEBO_LIBRARIES})
 
-add_library(ScanseCtrlPlugin SHARED ScanseControlPlugin.cc)
+add_library(ScanseCtrlPlugin SHARED src/ScanseControlPlugin.cc)
 target_link_libraries(ScanseCtrlPlugin ${GAZEBO_LIBRARIES})
 
-add_library(ScanseSensorPlugin SHARED ScanseSensorPlugin.cc)
+add_library(ScanseSensorPlugin SHARED src/ScanseSensorPlugin.cc)
 target_link_libraries(ScanseSensorPlugin ${GAZEBO_LIBRARIES})
 
 if("${GAZEBO_VERSION}" VERSION_LESS "8.0")
