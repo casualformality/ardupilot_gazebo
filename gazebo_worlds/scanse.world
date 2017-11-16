@@ -1,0 +1,34 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+    <world name="default">
+        <!-- A global light source -->
+        <include>
+            <uri>model://sun</uri>
+        </include>
+
+        <!-- A ground plane -->
+        <include>
+            <uri>model://ground_plane</uri>
+        </include>
+
+        <model name="my_scanse">
+            <include>
+                <uri>model://scanse_sweep</uri>
+                <pose>0 0 .23 0 0 0</pose>
+            </include>
+
+            <include>
+                <uri>model://iris_with_standoffs</uri>
+            </include>
+
+            <joint name="scanse_joint" type="fixed">
+                <child>scanse_sweep::base</child>
+                <parent>iris::base_link</parent>
+            </joint>
+
+            <!-- Attach the plugin to this model -->
+            <plugin name="ScanseControlPlugin" filename="libscansectrl.so"/>
+<!--            <plugin name="ScanseSensorPlugin" filename="libscansesensor.so"/> -->
+        </model>
+    </world>
+</sdf>
