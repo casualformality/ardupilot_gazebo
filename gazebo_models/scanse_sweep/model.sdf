@@ -121,7 +121,7 @@
             <sensor type="ray" name="scanse_sensor">
                 <!-- Set vertical location -->
                 <pose>0 0 -0.00105 0 0 0</pose>
-                <plugin name="ScanseSensorPlugin" filename="libScanseSensorPlugin.so"/>
+                <!-- plugin name="ScanseSensorPlugin" filename="libScanseSensorPlugin.so"/ -->
                 <!-- Enable sensor visualization -->
                 <visualize>true</visualize>
                 <!-- Set update frequency of the sensor (500 Hz) -->

@@ -346,6 +346,9 @@ class gazebo::ArduCopterPluginPrivate
   /// before marking ArduCopter offline
   public: int connectionTimeoutMaxCount;
   
+  /// \brief Pointer to the sensor update event connection.
+  public: event::ConnectionPtr sensorUpdateConnection;
+  
   /// \brief Pointer to Scanse LiDAR sensor
   public: sensors::RaySensorPtr scanseSensor;
 
@@ -570,8 +573,9 @@ void ArduCopterPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
       gzwarn << "Unable to connect to Scanse Sensor.\n";
   } else {
       this->dataPtr->scanseSensor->SetActive(true);
-      this->dataPtr->scanseSensor->ConnectUpdated(
-          std::bind(&ArduCopterPlugin::OnSensorUpdate, this));
+      this->dataPtr->sensorUpdateConnection = 
+          this->dataPtr->scanseSensor->ConnectUpdated(
+              std::bind(&ArduCopterPlugin::OnSensorUpdate, this));
       this->dataPtr->scannerModel = 
           this->dataPtr->model->GetWorld()->EntityByName(
               this->dataPtr->scanseSensor->ParentName());

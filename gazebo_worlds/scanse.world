@@ -11,23 +11,23 @@
             <uri>model://ground_plane</uri>
         </include>
 
-        <model name="my_scanse">
+        <model name="scanse_demo">
             <include>
                 <uri>model://scanse_sweep</uri>
                 <pose>0 0 .23 0 0 0</pose>
             </include>
 
             <include>
-                <uri>model://iris_with_standoffs</uri>
+                <uri>model://iris_with_standoffs_demo</uri>
             </include>
 
             <joint name="scanse_joint" type="fixed">
                 <child>scanse_sweep::base</child>
-                <parent>iris::base_link</parent>
+                <parent>iris_demo::iris::base_link</parent>
             </joint>
 
             <!-- Attach the plugin to this model -->
-            <plugin name="ScanseControlPlugin" filename="libScanseCtrlPlugin.so"/>
+	    <plugin name="ScanseControlPlugin" filename="libScanseCtrlPlugin.so"/>
 <!--            <plugin name="ScanseSensorPlugin" filename="libscansesensor.so"/> -->
         </model>
     </world>
