@@ -98,3 +98,4 @@ CATKIN_IGNORE
 
 # Ctags file
 tags
+.hg/

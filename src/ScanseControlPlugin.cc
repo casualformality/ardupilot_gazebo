@@ -21,19 +21,15 @@ namespace gazebo
         {
             // Just output a message for now
             std::cerr << "\nThe Scanse Sweep plugin is attach to model[" <<
-            _model->GetName() << "]\n";
+                    _model->GetScopedName() << "]\n";
 
-            // Safety check
-            if (_model->GetJointCount() == 0)
-            {
-                std::cerr << "Invalid joint count, Scanse plugin not loaded\n";
-                return;
-            }
+            //std::dynamic_pointer_cast<physics::ModelPtr>(_model->Get)
+
+            this->model = _model;
 
             // Store the model and joint pointers for convenience.
-            this->model = _model;
-            this->joint = _model->GetJoints()[0];
-
+            this->joint = this->model->GetJoint("iris_demo::scanse_sweep::scanse_joint");
+            
             // Setup and apply P-controller to the joint
             this->pid   = common::PID(0.0001, 0, 0);
             this->model->GetJointController()->SetVelocityPID(

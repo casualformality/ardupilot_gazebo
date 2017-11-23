@@ -5,6 +5,8 @@
          so the meshes and textures are loose approximations -->
 
     <model name="scanse_sweep">
+        <plugin name="scanse_control" filename="libScanseCtrlPlugin.so" />
+
         <!-- Give the base link a unique name -->
         <link name="base">
             <!-- Make sure it sits on ground plane -->
@@ -172,7 +174,7 @@
         <!-- The top parts sits on the base and spins around the z-axis.
              Note that due to the small masses, when controlling this, your
              PID gain should be on the order of 0.0001 -->
-        <joint type="revolute" name="joint">
+        <joint type="revolute" name="scanse_joint">
             <pose>0 0 -0.01925 0 0 0</pose>
             <parent>base</parent>
             <child>top</child>
@@ -187,5 +189,6 @@
                 </limit>
             </axis>
         </joint>
+
     </model>
 </sdf>
