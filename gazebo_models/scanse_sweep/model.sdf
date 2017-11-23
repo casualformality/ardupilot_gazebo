@@ -125,7 +125,7 @@
                 <pose>0 0 -0.00105 0 0 0</pose>
                 <!-- plugin name="ScanseSensorPlugin" filename="libScanseSensorPlugin.so"/ -->
                 <!-- Enable sensor visualization -->
-                <visualize>true</visualize>
+                <visualize>false</visualize>
                 <!-- Set update frequency of the sensor (500 Hz) -->
                 <update_rate>500</update_rate>
 
