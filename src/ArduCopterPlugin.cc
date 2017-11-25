@@ -34,6 +34,7 @@
 #include "../include/ArduCopterPlugin.hh"
 
 #define MAX_MOTORS 255
+#define RANGE_MAX  65536.0
 
 #ifndef M_PI
 #define M_PI 3.1415926536f
@@ -676,6 +677,8 @@ void ArduCopterPlugin::OnSensorUpdate()
     this->dataPtr->ranges[sector] = range;
     this->dataPtr->rangeValid[sector] = true;
   }
+  this->dataPtr->ranges[sector] = std::min(
+      RANGE_MAX, this->dataPtr->ranges[sector]);
 
   this->dataPtr->lastAngle = angle;
 }
