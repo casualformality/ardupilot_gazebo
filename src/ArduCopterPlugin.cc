@@ -637,37 +637,17 @@ void ArduCopterPlugin::OnSensorUpdate()
       this->dataPtr->scanseSensor->Pose()) - this->dataPtr->model->WorldPose();
   angle = pose.Rot().Yaw();
 
-  // Switch from +/- pi to 2pi radix
-  if (angle < 0.0f) {
-    angle = angle + 6.2831853072f;
-  }
-
+  // Convert angle (in +/- pi radians) to MAVLink distance sector
+  angle = (angle+(17*M_PI/8))*4/M_PI;
+  sector = 7 - ((unsigned int) angle) % 8;
+  
   // Reset range values on each revolution of LiDAR unit
   if (angle < this->dataPtr->lastAngle) {
     for (i=0; i<8; i++) {
       this->dataPtr->rangeValid[i] = false;
     }
   }
-
-  // Determine sector in which angle belongs
-  // Sectors are PI/8 radians wide with the center starting at 0
-  if (angle < (M_PI_16) || angle > (15*M_PI_16)) {
-    sector = 0;
-  } else if (angle < (3*M_PI_16)) {
-    sector = 1;
-  } else if (angle < (5*M_PI_16)) {
-    sector = 2;
-  } else if (angle < (7*M_PI_16)) {
-    sector = 3;
-  } else if (angle < (9*M_PI_16)) {
-    sector = 4;
-  } else if (angle < (11*M_PI_16)) {
-    sector = 5;
-  } else if (angle < (13*M_PI_16)) {
-    sector = 6;
-  } else {
-    sector = 7;
-  }
+  this->dataPtr->lastAngle = angle;
 
   // Update sector value
   if (this->dataPtr->rangeValid[sector]) {
@@ -680,7 +660,6 @@ void ArduCopterPlugin::OnSensorUpdate()
   this->dataPtr->ranges[sector] = std::min(
       RANGE_MAX, this->dataPtr->ranges[sector]);
 
-  this->dataPtr->lastAngle = angle;
 }
 
 /////////////////////////////////////////////////
