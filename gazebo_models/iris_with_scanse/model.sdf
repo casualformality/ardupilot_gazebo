@@ -2,17 +2,12 @@
 <sdf version="1.6">
   <model name="iris_demo">
     <include>
-      <uri>model://iris_with_standoffs</uri>
+      <uri>model://iris_quadcopter</uri>
     </include>
 
-    <include>
+    <!-- include>
       <uri>model://gimbal_small_2d</uri>
       <pose>0 -0.01 0.070 1.57 0 1.57</pose>
-    </include>
-
-    <include>
-      <uri>model://scanse_sweep</uri>
-      <pose>0 0 0.23 0 0 0</pose>
     </include>
 
     <joint name="iris_gimbal_mount" type="revolute">
@@ -26,7 +21,12 @@
         <xyz>0 0 1</xyz>
         <use_parent_model_frame>true</use_parent_model_frame>
       </axis>
-    </joint>
+    </joint -->
+    
+    <include>
+      <uri>model://scanse_sweep</uri>
+      <pose>0 0 0.06 0 0 0</pose>
+    </include>
 
     <joint name="scanse_mount" type="fixed">
       <parent>iris::base_link</parent>
