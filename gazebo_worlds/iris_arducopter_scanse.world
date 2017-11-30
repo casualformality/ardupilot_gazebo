@@ -82,6 +82,10 @@ to fly iris with a ps2 joystick.
       <uri>model://sun</uri>
     </include>
 
+    <include>
+      <uri>model://erle_office</uri>
+    </include>
+
     <model name="ground_plane">
       <static>true</static>
       <link name="link">

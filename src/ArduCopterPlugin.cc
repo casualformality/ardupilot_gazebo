@@ -360,7 +360,8 @@ class gazebo::ArduCopterPluginPrivate
   public: double ranges[8];
 
   /// \brief Determines validity of each LiDAR range value
-  public: bool rangeValid[8];
+  public: uint16_t currentSector;
+  public: double sectorRange;
 
   /// \brief Last angle received from Scanse Sensor, used
   /// to reset distance information
@@ -373,6 +374,8 @@ ArduCopterPlugin::ArduCopterPlugin()
 {
   this->dataPtr->arduCopterOnline = false;
   this->dataPtr->connectionTimeoutCount = 0;
+  this->dataPtr->currentSector = 0;
+  this->dataPtr->sectorRange = RANGE_MAX;
 }
 /////////////////////////////////////////////////
 ArduCopterPlugin::~ArduCopterPlugin()
@@ -641,24 +644,15 @@ void ArduCopterPlugin::OnSensorUpdate()
   angle = (angle+(17*M_PI/8))*4/M_PI;
   sector = 7 - ((unsigned int) angle) % 8;
   
-  // Reset range values on each revolution of LiDAR unit
-  if (angle < this->dataPtr->lastAngle) {
-    for (i=0; i<8; i++) {
-      this->dataPtr->rangeValid[i] = false;
-    }
+  if (sector != this->dataPtr->currentSector) {
+    this->dataPtr->ranges[this->dataPtr->currentSector] = 
+        this->dataPtr->sectorRange;
+    this->dataPtr->currentSector = sector;
+    this->dataPtr->sectorRange = RANGE_MAX;
   }
-  this->dataPtr->lastAngle = angle;
 
-  // Update sector value
-  if (this->dataPtr->rangeValid[sector]) {
-    this->dataPtr->ranges[sector] = std::min(
-        range, this->dataPtr->ranges[sector]);
-  } else {
-    this->dataPtr->ranges[sector] = range;
-    this->dataPtr->rangeValid[sector] = true;
-  }
-  this->dataPtr->ranges[sector] = std::min(
-      RANGE_MAX, this->dataPtr->ranges[sector]);
+  this->dataPtr->sectorRange = std::min(
+      range, this->dataPtr->sectorRange);
 
 }
 
