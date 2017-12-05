@@ -83,7 +83,8 @@ to fly iris with a ps2 joystick.
     </include>
 
     <include>
-      <uri>model://erle_office</uri>
+        <!-- uri>model://erle_office</uri -->
+        <uri>model://test_hallway</uri>
     </include>
 
     <model name="ground_plane">
