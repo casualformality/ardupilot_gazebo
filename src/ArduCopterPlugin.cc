@@ -634,16 +634,18 @@ void ArduCopterPlugin::OnSensorUpdate()
   double angle, range;
   unsigned int sector, i;
   ignition::math::Pose3d pose;
+  double tmp;
 
   range = this->dataPtr->scanseSensor->Range(0);
   pose = (this->dataPtr->scannerModel->WorldPose() + 
       this->dataPtr->scanseSensor->Pose()) - this->dataPtr->model->WorldPose();
   angle = pose.Rot().Yaw();
+  tmp = angle;
 
   // Convert angle (in +/- pi radians) to MAVLink distance sector
-  angle = (angle+(17*M_PI/8))*4/M_PI;
+  angle = (angle+(15*M_PI/8))*4/M_PI;
   sector = 7 - ((unsigned int) angle) % 8;
-  
+
   if (sector != this->dataPtr->currentSector) {
     this->dataPtr->ranges[this->dataPtr->currentSector] = 
         this->dataPtr->sectorRange;

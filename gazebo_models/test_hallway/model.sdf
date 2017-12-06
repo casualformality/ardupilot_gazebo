@@ -227,7 +227,7 @@
             </visual>
 
             <collision name='Wall_6_Collision'>
-                <pose frame=''>0 0 1.25 0 0 0</pose>
+                <pose frame=''>0 0 0 0 0 0</pose>
                 <geometry>
                     <box>
                         <size>22.3 0.15 2.5</size>
@@ -263,7 +263,7 @@
             </visual>
 
             <collision name='Wall_7_Collision'>
-                <pose frame=''>0 0 1.25 0 0 0</pose>
+                <pose frame=''>0 0 0 0 0 0</pose>
                 <geometry>
                     <box>
                         <size>0.15 24.6 2.5</size>
